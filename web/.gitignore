@@ -1,0 +1,8 @@
+/vendor
+/node_modules
+.env
+/bootstrap/compiled.php
+.env.*.php
+.env.php
+/.idea
+_ide_helper.php
