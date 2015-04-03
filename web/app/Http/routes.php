@@ -13,9 +13,17 @@
 
 Route::get('/', 'WelcomeController@index');
 
-Route::get('home', 'HomeController@index');
+//Everyone can login
 
-Route::controllers([
-	'auth' => 'Auth\AuthController',
-	'password' => 'Auth\PasswordController',
-]);
+Route::get('users/login', ['as' => 'users.loginform', 'uses' => 'UsersController@loginForm']);
+Route::post('users/login', ['as' => 'users.login', 'uses' => 'UsersController@login']);
+
+Route::group(['middleware' => 'auth'], function() {
+    Route::get('users/logout', ['as' => 'users.logout', 'uses' => 'UsersController@logout']);
+
+    Route::resource('users', 'UsersController');
+    Route::get('users/{id}/delete', ['as' => 'users.delete', 'uses' => 'UsersController@delete']);
+
+    Route::resource('persons', 'PersonsController');
+    Route::get('persons/{id}/delete', ['as' => 'persons.delete', 'uses'=>'PersonsController@delete']);
+});

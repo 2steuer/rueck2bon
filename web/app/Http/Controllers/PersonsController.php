@@ -25,10 +25,6 @@ class PersonsController extends CrudController {
 
         $obj = $this->model->create($data);
 
-        $groups = Request::has('group_list') ? Request::input('group_list') : [];
-        $this->syncGroups($obj, $groups);
-
-
         Session::flash('flash_message', $this->humanName . ' angelegt.');
 
         if(Request::has('submit_list')) {
@@ -54,32 +50,8 @@ class PersonsController extends CrudController {
 
         $obj->update($data);
 
-        $groups = Request::has('group_list') ? Request::input('group_list') : [];
-        $this->syncGroups($obj, $groups);
-
         Session::flash('flash_message', 'Änderungen gespeichert.');
 
         return redirect()->route($this->plural.'.index');
-    }
-
-    private function syncGroups($obj, $ids) {
-        foreach ($ids as $id) {
-            if(!$obj->groups->contains($id)) {
-                $group = Group::findOrFail($id);
-                $obj->groups()->attach($id, ['order' => ($group->persons->count() + 1)]);
-            }
-        }
-
-        foreach ($obj->groups()->get() as $group) {
-            if(!in_array($group->id, $ids)) {
-                $obj->groups()->detach($group->id);
-            }
-        }
-
-    }
-
-    public function beforeDelete($obj) {
-        DB::table('group_person')
-            ->where('person_id', $obj->id)->delete();
     }
 }

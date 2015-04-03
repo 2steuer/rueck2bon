@@ -20,7 +20,7 @@ class UsersController extends CrudController {
     }
 
     public function create() {
-        return view('users.new', ['triggers' => Trigger::all()->lists('name', 'id')]);
+        return view('users.new');
     }
 
     public function store() {
@@ -29,14 +29,8 @@ class UsersController extends CrudController {
         $data = Request::only(['name', 'email', 'admin', 'editusers']);
         $data['password'] = $pwd;
 
-        if(!Request::has('admin'))
-            $data['admin'] = false;
-
-        if(!Request::has('editusers'))
-            $data['editusers'] = false;
 
         $obj = User::create($data);
-        $obj->allowedTriggers()->sync((Request::has('trigger_list') ? Request::input('trigger_list') : []));
 
         Session::flash('flash_message', $this->humanName . ' angelegt.');
 
@@ -57,9 +51,8 @@ class UsersController extends CrudController {
 
     public function edit($id) {
         $user = User::findOrFail($id);
-        $triggers = Trigger::all()->lists('name', 'id');
 
-        return view('users.edit', ['user' => $user, 'triggers' => $triggers]);
+        return view('users.edit', ['user' => $user]);
     }
 
     public function update($id) {
@@ -69,15 +62,8 @@ class UsersController extends CrudController {
             $data['password'] = Hash::make(Request::input('password_u'));
         }
 
-        if(!Request::has('admin'))
-            $data['admin'] = false;
-
-        if(!Request::has('editusers'))
-            $data['editusers'] = false;
-
         $obj = User::findOrFail($id);
         $obj->update($data);
-        $obj->allowedTriggers()->sync((Request::has('trigger_list') ? Request::input('trigger_list') : []));
 
         Session::flash('flash_message', 'Änderungen gespeichert.');
 
@@ -101,7 +87,7 @@ class UsersController extends CrudController {
         if(Auth::attempt($cred, $remember)) {
             Session::flash('flash_message', 'Login erfolgreich.');
 
-            return redirect()->route('alarm.index');
+            return redirect()->route('persons.index');
         }
         else {
             return redirect()->route('users.loginform')->withInput(Request::only(['email', 'remember']))->withErrors(['email' => 'Login fehlgeschlagen.']);
